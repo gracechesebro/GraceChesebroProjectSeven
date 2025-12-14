@@ -1,5 +1,5 @@
 import random
-import dearpygui as dpg
+import dearpygui.dearpygui as dpg
 import comp151Colors
 import SampleImages
 
@@ -13,11 +13,11 @@ child_pet_dog = False
 game_over = False
 game_win = False
 #load images
-child_w, child_h, c, child_raw = dpg.load_image("girl1.png")
-truck_w, truck_h, c, truck_raw = dpg.load_image("truck_1_2.png")
-dog_w, dog_h, c, dog_raw = dpg.load_image("dog2.png")
-bear_w, bear_h, c, bear_raw = dpg.load_image("bear.png")
-car_w, car_h, c, car_raw = dpg.load_image("car2.png")
+child_w, child_h, channels, child_raw = dpg.load_image("girl1.png")
+truck_w, truck_h, channels, truck_raw = dpg.load_image("truck_1_2.png")
+dog_w, dog_h, channels, dog_raw = dpg.load_image("dog2.png")
+bear_w, bear_h, channels, bear_raw = dpg.load_image("bear.png")
+car_w, car_h, channels, car_raw = dpg.load_image("car2.png")
 #functions
 #child
 def move_child(sender, app_data):
@@ -79,8 +79,23 @@ with dpg.drawlist(width=800, height=800):
     dpg.draw_text((20, 20), "GROCERY STORE", size=25)
     #grocery store doors
     #left door
-    dpg.draw_rectangle((355, 25), (400, 115), thickness = 4, color=comp151Colors.WHITE, fill=comp151Colors.GRAY)
+    dpg.draw_rectangle((355, 25), (400, 115), thickness = 4, color=comp151Colors.WHITE,
+                       fill=comp151Colors.GRAY)
     #right door
-    dpg.draw_rectangle((400,25), (445, 115), thickness=4, color=comp151Colors.WHITE, fill=comp151Colors.GRAY)
+    dpg.draw_rectangle((400,25), (445, 115), thickness=4, color=comp151Colors.WHITE,
+                       fill=comp151Colors.GRAY)
+    #top road - don't have to draw - background is black already
+    #Grass
+    dpg.draw_rectangle((0,300), (800, 450), thickness=4, color=comp151Colors.WHITE,
+                       fill=comp151Colors.DARK_GREEN)
+    #Parking Lot
+    x=50
+    while x < 800:
+        dpg.draw_line((x, 550), (x, 800), fill=comp151Colors.WHITE, thickness=4)
+        x+=80
+
+
+dpg.start_dearpygui
+dpg.destroy_context
 
 
