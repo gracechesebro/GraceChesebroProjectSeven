@@ -100,6 +100,12 @@ with dpg.drawlist(width=800, height=800):
     #child
     dpg.draw_image("child_texture", (child_x, child_y), (child_x + child_w,
                                                          child_y + child_h), tag="child_update")
+    #trucks
+    count = 0
+    for t in top_trucks:
+        dpg.draw_image("truck_texture", (t["x"], t["y"]),
+                       (t["x"] + truck_w, t["y"] + truck_h), tag=f"truck_update{count}")
+        count += 1
 
 
 dpg.start_dearpygui
