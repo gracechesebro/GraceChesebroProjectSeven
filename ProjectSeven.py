@@ -51,4 +51,36 @@ def do_overlap(l1, r1, l2, r2):
         return False
     return True
 #Creating Objects
+top_trucks = create_trucks(3)
+dogs = [
+    {"x": 200, "y": 350},
+    {"x": 300, "y": 350}
+]
+bear = {"x": 400, "y": 350}
+
+#textures
+with dpg.texture_registry():
+    dpg.add_static_texture(child_w, child_h, child_raw, tag="child_texture")
+    dpg.add_static_texture(truck_w, truck_h, truck_raw, tag="truck_texture")
+    dpg.add_static_texture(dog_w, dog_h, dog_raw, tag="dog_texture")
+    dpg.add_static_texture(bear_w, bear_h, bear_raw, tag="bear_texture")
+    dpg.add_static_texture(car_w, car_h, car_raw, tag="car_texture")
+#handler
+with dpg.handler_registry():
+    dpg.add_key_press_handler(callback=move_child)
+
+#window / drawlist
+dpg.create_viewport(title="Project Seven Game", width = 800, height = 800)
+with dpg.drawlist(width=800, height=800):
+    #background
+    dpg.draw_rectangle((0,0), (800,800), fill=comp151Colors.BLACK)
+    #grocery store
+    dpg.draw_rectangle((0,0), (800,120), fill=comp151Colors.BROWN)
+    dpg.draw_text((20, 20), "GROCERY STORE", size=25)
+    #grocery store doors
+    #left door
+    dpg.draw_rectangle((355, 25), (400, 115), thickness = 4, color=comp151Colors.WHITE, fill=comp151Colors.GRAY)
+    #right door
+    dpg.draw_rectangle((400,25), (445, 115), thickness=4, color=comp151Colors.WHITE, fill=comp151Colors.GRAY)
+
 
