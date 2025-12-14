@@ -93,6 +93,13 @@ with dpg.drawlist(width=800, height=800):
     while x < 800:
         dpg.draw_line((x, 550), (x, 800), fill=comp151Colors.WHITE, thickness=4)
         x+=80
+    #Images
+    #car
+    dpg.draw_image("car_texture", (350, 650), (350 + car_w, 650 + car_h),
+                   tag="child_update")
+    #child
+    dpg.draw_image("child_texture", (child_x, child_y), (child_x + child_w,
+                                                         child_y + child_h), tag="child_update")
 
 
 dpg.start_dearpygui
