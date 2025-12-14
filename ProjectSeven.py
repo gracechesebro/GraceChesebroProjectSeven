@@ -75,7 +75,7 @@ with dpg.drawlist(width=800, height=800):
     #background
     dpg.draw_rectangle((0,0), (800,800), fill=comp151Colors.BLACK)
     #grocery store
-    dpg.draw_rectangle((0,0), (800,120), fill=comp151Colors.BROWN)
+    dpg.draw_rectangle((0,0), (800,120), thickness=4, color=comp151Colors.WHITE, fill=comp151Colors.BROWN)
     dpg.draw_text((20, 20), "GROCERY STORE", size=25)
     #grocery store doors
     #left door
