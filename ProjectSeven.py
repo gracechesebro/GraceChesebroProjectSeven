@@ -5,6 +5,8 @@ import SampleImages
 
 #boiler plate
 dpg.create_context()
+WINDOW_W=800
+WINDOW_H=800
 #variables
 child_x = 280
 child_y = 320
@@ -50,6 +52,36 @@ def do_overlap(l1, r1, l2, r2):
     if r1["y"] < l2["y"] or r2["y"] < l1["y"]:
         return False
     return True
+#added more functions
+#moves all vehicles for both roads
+def move_vehicles():
+    for v in top_trucks:
+        v["x"] += truck_speed
+        if v["x"] > WINDOW_W:
+            v["x"] = -truck_w
+    for v in bottom_trucks:
+        v["x"] -= truck_speed
+        if v["x"] < -truck_w:
+            v["x"] = WINDOW_W
+#checks for collisions with trucks, dogs, and bear
+def check_collisions(px, py):
+    global game_over, child_pet_dog
+    #trucks
+    for t in top_trucks:
+        if do_overlap({"x": px, "y": py}, {"x":px+child_w, "y":py+child_h},
+                      {"x": t["x"], "y": t["y"]}, {"x": t["x"] + truck_w, "y": t["y"] +
+                                                                               truck_h}):
+            game_over = True
+    #dogs pet
+    for d in dogs:
+        if do_overlap({"x": px, "y": py}, {"x": px+ child_w, "y": py+child_h},
+                      {"x": d["x"] + dog_w, "y": d["y"] + dog_h}):
+        child_pet_dog = True
+    #bear
+    if do_overlap(l1={"x": px, "y": py}, r1={"x": px + child_w, "y": py + child_h},
+                  l2={"x": bear["x"], "y": bear["y"]}, r2={"x": bear["x"] + bear_w,
+                                                           "y": bear["y"] + bear_h}):
+        game_over = True
 #Creating Objects
 top_trucks = create_trucks(3)
 dogs = [
@@ -75,7 +107,8 @@ with dpg.drawlist(width=800, height=800):
     #background
     dpg.draw_rectangle((0,0), (800,800), fill=comp151Colors.BLACK)
     #grocery store
-    dpg.draw_rectangle((0,0), (800,120), thickness=4, color=comp151Colors.WHITE, fill=comp151Colors.BROWN)
+    dpg.draw_rectangle((0,0), (800,120), thickness=4, color=comp151Colors.WHITE,
+                       fill=comp151Colors.BROWN)
     dpg.draw_text((20, 20), "GROCERY STORE", size=25)
     #grocery store doors
     #left door
@@ -96,7 +129,7 @@ with dpg.drawlist(width=800, height=800):
     #Images
     #car
     dpg.draw_image("car_texture", (350, 650), (350 + car_w, 650 + car_h),
-                   tag="child_update")
+                   tag="car_update")
     #child
     dpg.draw_image("child_texture", (child_x, child_y), (child_x + child_w,
                                                          child_y + child_h), tag="child_update")
@@ -106,6 +139,32 @@ with dpg.drawlist(width=800, height=800):
         dpg.draw_image("truck_texture", (t["x"], t["y"]),
                        (t["x"] + truck_w, t["y"] + truck_h), tag=f"truck_update{count}")
         count += 1
+    #dogs
+    dpg.draw_image("dog_texture", (200, 350), (200+dog_w, 350+dog_h),
+                   tag="dog_update")
+    dpg.draw_image("dog_texture", (300, 350), (300+dog_w, 350+dog_h),
+                   tag="dog2_update")
+    #bear
+    dpg.draw_image("bear_texture", (400, 350), (400+bear_w, 350+bear_h),
+                   tag="bear_update")
+#main loop
+#loop runs continuously while the game is open, updates movement, checks collisions,
+# and redraws objects.
+dpg.setup_dearpygui()
+dpg.show_viewport()
+while dpg.is_dearpygui_running():
+    if not game_over:
+        # move trucks
+        i = 0
+        for t in top_trucks:
+            t["x"] -= 3
+            if t["x"] < -truck_w:
+                t["x"] = 800
+            dpg.configure_item(f"truck_update{i}", pmin=(t["x"], t["y"]),
+                               pmax=(t["x"] + truck_w, t["y"] + truck_h))
+            i += 1
+
+
 
 
 dpg.start_dearpygui
