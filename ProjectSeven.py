@@ -8,8 +8,8 @@ dpg.create_context()
 WINDOW_W=800
 WINDOW_H=800
 #variables
-child_x = 280
-child_y = 320
+child_x = 370
+child_y = 30
 child_speed = 6
 child_pet_dog = False
 game_over = False
@@ -162,10 +162,35 @@ while dpg.is_dearpygui_running():
                 t["x"] = 800
             dpg.configure_item(f"truck_update{i}", pmin=(t["x"], t["y"]),
                                pmax=(t["x"] + truck_w, t["y"] + truck_h))
+            #collision set up
+            child_top_left = {"x": child_x, "y": child_y}
+            child_bottom_right = {"x": child_x + child_w, "y": t["y"] + truck_h}
+            truck_bottom_right = {"x": t["x"] + truck_w, "y": t["y"] + truck_h}
+            #truck collision
+            if do_overlap(child_top_left, child_bottom_right, t, truck_bottom_right):
+                game_over = True
+                dpg.configure_item("status_text", text="YOU LOST: CHILD HIT BY TRUCK - BAD PARENT")
+                break
             i += 1
-
-
-
+            #dog collision
+            for d in dogs:
+                dog_bottom_right = {"x": d["x"] + dog_w, "y": d["y"] + dog_h}
+                if do_overlap(child_top_left, child_bottom_right, d, dog_bottom_right):
+                    child_pet_dog = True
+            #bear collision
+            bear_bottom_right = {"x": bear["x"] + bear_w, "y": bear["y"] + bear_h}
+            if do_overlap(child_top_left, child_bottom_right, bear, bear_bottom_right):
+                game_over = True
+                dpg.configure_item("status_text", text="YOU LOST: CHILD HIT BEAR - BAD PARENT")
+            #car / win
+            car = {"x": 350, "y": 650}
+            car_bottom_right = {"x": 350 + car_w, "y": 650 + car_h}
+            if child_pet_dog:
+                game_win = True
+                dpg.configure_item("status_text", text="YOU WIN: GOOD PARENT")
+            else:
+                dpg.configure_item("status_text", text="YOU LOST: CHILD CRIED - BAD PARENT")
+    dpg.render_dearpygui_frame()
 
 dpg.start_dearpygui
 dpg.destroy_context
