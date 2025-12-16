@@ -16,7 +16,7 @@ child_pet_dog = False
 game_over = False
 game_win = False
 #speeds
-truck_speed=2
+truck_speed=1.5
 dog_speed=2
 bear_speed=2
 dog_direction = 1
@@ -84,17 +84,17 @@ def check_collisions(px, py):
     global game_over, child_pet_dog
     #trucks
     for t in top_trucks:
-        if do_overlap({"x": px, "y": py}, {"x":px+child_w, "y":py+child_h},
+        if do_overlap({"x": px, "y": py}, {"x":px+child_draw_w, "y":py+child_draw_h},
                       {"x": t["x"], "y": t["y"]}, {"x": t["x"] + truck_w, "y": t["y"] +
                                                                                truck_h}):
             game_over = True
     #dogs pet
     for d in dogs:
-        if do_overlap({"x": px, "y": py}, {"x": px+ child_w, "y": py+child_h},
-                      {"x": d["x"] + dog_w, "y": d["y"] + dog_h}):
+        if do_overlap({"x": px, "y": py}, {"x": px+ child_draw_w, "y": py+child_draw_h},
+                      {"x": d["x"], "y": d["y"]}, {"x": d["x"] + dog_draw_w, "y": d["y"] + dog_draw_h}):
             child_pet_dog = True
     #bear
-    if do_overlap(l1={"x": px, "y": py}, r1={"x": px + child_w, "y": py + child_h},
+    if do_overlap(l1={"x": px, "y": py}, r1={"x": px + child_draw_w, "y": py + child_draw_h},
                   l2={"x": bear["x"], "y": bear["y"]}, r2={"x": bear["x"] + bear_w,
                                                            "y": bear["y"] + bear_h}):
         game_over = True
@@ -226,32 +226,33 @@ while dpg.is_dearpygui_running():
         child_bottom_right = {"x": child_x + child_draw_w, "y": child_y + child_draw_h}
         truck_bottom_right = {"x": t["x"] + truck_w, "y": t["y"] + truck_h}
         #collision check
-        child_rect = {"x": child_x, "y": child_y, "w": child_draw_w, "h": child_draw_h}
+        MARGIN = 5
+        child_rect = {"x": child_x + MARGIN, "y": child_y +MARGIN, "w": child_draw_w -2*MARGIN, "h": child_draw_h-2*MARGIN}
             #truck collision
         for t in top_trucks + bottom_trucks:
             truck_rect = {"x": t["x"], "y": t["y"], "w": truck_w, "h": truck_h}
-        if do_overlap({"x": child_rect["x"], "y": child_rect["y"]},
-                          {"x": child_rect["x"] + child_draw_w, "y": child_rect["y"] + child_draw_h},
+            if do_overlap({"x": child_rect["x"], "y": child_rect["y"]},
+                          {"x": child_rect["x"] + child_rect["w"], "y": child_rect["y"] + child_rect["h"]},
                           {"x": truck_rect["x"], "y": truck_rect["y"]},
                           {"x": truck_rect["x"] + truck_rect["w"], "y": truck_rect["y"] + truck_rect["h"]}):
-            game_over = True
-        dpg.configure_item("status_text", text="YOU LOST: CHILD HIT BY TRUCK - BAD PARENT")
+                game_over = True
+                dpg.configure_item("status_text", text="YOU LOST: CHILD HIT BY TRUCK - BAD PARENT")
 
         for d in dogs:
-            dog_rect = {"x": d["x"], "y": d["y"], "w": dog_w, "h": dog_h}
+            dog_rect = {"x": d["x"], "y": d["y"], "w": dog_draw_w, "h": dog_draw_h}
             if do_overlap({"x": child_rect["x"], "y": child_rect["y"]},
                               {"x": child_rect["x"] + child_draw_w, "y": child_rect["y"] + child_draw_h},
                               {"x": dog_rect["x"], "y": dog_rect["y"]},
-                              {"x": dog_rect["x"] + dog_w, "y": dog_rect["y"] + dog_h}):
+                              {"x": dog_rect["x"] + dog_draw_w, "y": dog_rect["y"] + dog_draw_h}):
                 child_pet_dog = True
 
             #bear collision
-            bear_rect = {"x": bear["x"], "y": bear["y"], "w": bear_w, "h": bear_h}
-            if do_overlap({"x": child_rect["x"], "y": child_rect["y"]},
+        bear_rect = {"x": bear["x"], "y": bear["y"], "w": bear_w, "h": bear_h}
+        if do_overlap({"x": child_rect["x"], "y": child_rect["y"]},
                           {"x": child_rect["x"] + child_draw_w, "y": child_rect["y"] + child_draw_h},
                           {"x": bear_rect["x"], "y": bear_rect["y"]},
                           {"x": bear_rect["x"] + bear_w, "y": bear_rect["y"] + bear_h}):
-                game_over = True
+            game_over = True
             dpg.configure_item("status_text", text="YOU LOST: CHILD HIT BY BEAR - BAD PARENT")
             #car / win
             car_rect = {"x": 350, "y": 650, "w": car_w, "h": car_h}
