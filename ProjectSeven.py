@@ -28,6 +28,13 @@ truck2_w, truck2_h, channels, truck2_raw = dpg.load_image("SampleImages/garbage_
 dog_w, dog_h, channels, dog_raw = dpg.load_image("SampleImages/dog2.png")
 bear_w, bear_h, channels, bear_raw = dpg.load_image("SampleImages/bear.png")
 car_w, car_h, channels, car_raw = dpg.load_image("SampleImages/car2.png")
+#fixing image sizes
+CHILD_SCALE = 0.22
+child_draw_w = int(child_w * CHILD_SCALE)
+child_draw_h = int(child_h * CHILD_SCALE)
+DOG_SCALE = 0.3
+dog_draw_w = int(dog_w * DOG_SCALE)
+dog_draw_h = int(dog_h * DOG_SCALE)
 #functions
 #child
 def move_child(sender, app_data):
@@ -43,9 +50,9 @@ def move_child(sender, app_data):
         child_y -= child_speed
     elif key == dpg.mvKey_Down:
         child_y += child_speed
-    child_x = max(0, min(child_x, WINDOW_W - child_w))
-    child_y = max(0, min(child_y, WINDOW_H - child_h))
-    dpg.configure_item("child_update", pmin=(child_x, child_y), pmax=(child_x + child_w, child_y + child_h))
+    child_x = max(0, min(child_x, WINDOW_W - child_draw_w))
+    child_y = max(0, min(child_y, WINDOW_H - child_draw_h))
+    dpg.configure_item("child_update", pmin=(child_x, child_y), pmax=(child_x + child_draw_w, child_y + child_draw_h))
 #function truck
 def create_trucks(number, y_value):
     trucks = []
@@ -147,7 +154,7 @@ with dpg.window(label="Project Seven Game Window", width=800, height=800):
     dpg.draw_image("car_texture", (400, 580), (350 + car_w//2, 650 + car_h//3.5),
                    tag="car_update")
     #child
-    dpg.draw_image("child_texture", (340, 25), (340+child_w/4.5, 25+child_h//4.5), tag="child_update")
+    dpg.draw_image("child_texture", (child_x, child_y), (child_x + child_draw_w, child_y+child_draw_h), tag="child_update")
     #top trucks
     count = 0
     for t in top_trucks:
@@ -196,45 +203,72 @@ while dpg.is_dearpygui_running():
             dpg.configure_item(f"bottom_truck{i}", pmin=(t["x"], t["y"]),
                                pmax=(t["x"] + truck2_w, t["y"] + truck2_h))
             i += 1
-            #collision set up
-            child_top_left = {"x": child_x, "y": child_y}
-            child_bottom_right = {"x": child_x + child_w, "y": t["y"] + truck_h}
-            truck_bottom_right = {"x": t["x"] + truck_w, "y": t["y"] + truck_h}
+            #move dogs
+        for d in dogs:
+            d["x"] += dog_speed * dog_direction
+        #reverse if hits edge of grass
+        if d["x"] < 0 or d["x"] + dog_draw_w > WINDOW_W:
+            dog_direction *= -1
+             #move both dogs together
+            for d2 in dogs:
+                d2["x"] += dog_speed * dog_direction
+            if do_overlap(child_top_left, child_bottom_right, d, dog_bottom_right):
+                child_pet_dog = True
+        dpg.configure_item("dog_update", pmin=(dogs[0]["x"], dogs[0]["y"]), pmax=(dogs[0]["x"] + dog_w, dogs[0]["y"] + dog_h))
+        dpg.configure_item("dog2_update", pmin=(dogs[1]["x"], dogs[1]["x"]), pmax=(dogs[1]["x"]+dog_w, dogs[1]["x"]+dog_h))
+        #move bear
+        bear["x"] += bear_speed * bear_direction
+        if bear["x"] < 0 or bear["x"] + bear_w > WINDOW_W:
+            bear_direction *= -1
+        dpg.configure_item("bear_update", pmin=(bear["x"], bear["y"]), pmax=(bear["x"] + bear_w, bear["y"] + bear_h))
+
+        #collision set up
+        child_top_left = {"x": child_x, "y": child_y}
+        child_bottom_right = {"x": child_x + child_draw_w, "y": child_y + child_draw_h}
+        truck_bottom_right = {"x": t["x"] + truck_w, "y": t["y"] + truck_h}
+        #collision check
+        child_rect = {"x": child_x, "y": child_y, "w": child_draw_w, "h": child_draw_h}
             #truck collision
-            if do_overlap(child_top_left, child_bottom_right, t, truck_bottom_right):
-                game_over = True
-                dpg.configure_item("status_text", text="YOU LOST: CHILD HIT BY TRUCK - BAD PARENT")
-                break
-            i += 1
-            #dog movement
-            for d in dogs:
-                d["x"] += dog_speed * dog_direction
-                #reverse if hits edge of grass
-                if d["x"] < 0 or d["x"] + dog_w > WINDOW_W:
-                    dog_direction *= -1
-                    #move both dogs together
-                    for d2 in dogs:
-                        d2["x"] += dog_speed * dog_direction
-                if do_overlap(child_top_left, child_bottom_right, d, dog_bottom_right):
-                    child_pet_dog = True
-            dpg.configure_item("dog_update", pmin=(dogs[0]["x"], dogs[0]["y"]), pmax=(dogs[0]["x"] + dog_w, dogs[0]["y"] + dog_h))
-            dpg.configure_item("dog2_update", pmin=(dogs[1]["x"], dogs[1]["x"]), pmax=(dogs[1]["x"]+dog_w, dogs[1]["x"]+dog_h))
+        for t in top_trucks + bottom_trucks:
+            truck_rect = {"x": t["x"], "y": t["y"], "w": truck_w, "h": truck_h}
+        if do_overlap({"x": child_rect["x"], "y": child_rect["y"]},
+                          {"x": child_rect["x"] + child_draw_w, "y": child_rect["y"] + child_draw_h},
+                          {"x": truck_rect["x"], "y": truck_rect["y"]},
+                          {"x": truck_rect["x"] + truck_rect["w"], "y": truck_rect["y"] + truck_rect["h"]}):
+            game_over = True
+        dpg.configure_item("status_text", text="YOU LOST: CHILD HIT BY TRUCK - BAD PARENT")
+        break
+        for d in dogs:
+            dog_rect = {"x": d["x"], "y": d["y"], "w": dog_w, "h": dog_h}
+            if do_overlap({"x": child_rect["x"], "y": child_rect["y"]},
+                              {"x": child_rect["x"] + child_draw_w, "y": child_rect["y"] + child_draw_h},
+                              {"x": dog_rect["x"], "y": dog_rect["y"]},
+                              {"x": dog_rect["x"] + dog_w, "y": dog_rect["y"] + dog_h}):
+                child_pet_dog = True
+
             #bear collision
-            bear_bottom_right = {"x": bear["x"] + bear_w, "y": bear["y"] + bear_h}
-            if do_overlap(child_top_left, child_bottom_right, bear, bear_bottom_right):
+            bear_rect = {"x": bear["x"], "y": bear["y"], "w": bear_w, "h": bear_h}
+            if do_overlap({"x": child_rect["x"], "y": child_rect["y"]},
+                          {"x": child_rect["x"] + child_draw_w, "y": child_rect["y"] + child_draw_h},
+                          {"x": bear_rect["x"], "y": bear_rect["y"]},
+                          {"x": bear_rect["x"] + bear_w, "y": bear_rect["y"] + bear_h}):
                 game_over = True
-                dpg.configure_item("status_text", text="YOU LOST: CHILD HIT BEAR - BAD PARENT")
+            dpg.configure_item("status_text", text="YOU LOST: CHILD HIT BY BEAR - BAD PARENT")
             #car / win
-            car = {"x": 350, "y": 650}
-            car_bottom_right = {"x": 350 + car_w, "y": 650 + car_h}
-            if child_pet_dog:
-                game_win = True
-                dpg.configure_item("status_text", text="YOU WIN: GOOD PARENT")
-            else:
-                dpg.configure_item("status_text", text="YOU LOST: CHILD CRIED - BAD PARENT")
+            car_rect = {"x": 350, "y": 650, "w": car_w, "h": car_h}
+            if do_overlap({"x": child_rect["x"], "y": child_rect["y"]},
+                          {"x": child_rect["x"] + child_draw_w, "y": child_rect["y"] + child_draw_h},
+                          {"x": car_rect["x"], "y": car_rect["y"]},
+                          {"x": car_rect["x"] + car_w, "y": car_rect["y"] + car_h}):
+                if child_pet_dog:
+                    game_win = True
+                    dpg.configure_item("status_text", text="YOU WIN: GOOD PARENT")
+                else:
+                    game_over = True
+                    dpg.configure_item("status_text", text="YOU LOST: CHILD CRIED - BAD PARENT")
     dpg.render_dearpygui_frame()
 
-dpg.start_dearpygui
-dpg.destroy_context
+dpg.start_dearpygui()
+dpg.destroy_context()
 
 
