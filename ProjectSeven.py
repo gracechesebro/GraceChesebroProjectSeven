@@ -255,17 +255,17 @@ while dpg.is_dearpygui_running():
             game_over = True
             dpg.configure_item("status_text", text="YOU LOST: CHILD HIT BY BEAR - BAD PARENT")
             #car / win
-            car_rect = {"x": 350, "y": 650, "w": car_w, "h": car_h}
-            if do_overlap({"x": child_rect["x"], "y": child_rect["y"]},
+        car_rect = {"x": 350, "y": 650, "w": car_w, "h": car_h}
+        if do_overlap({"x": child_rect["x"], "y": child_rect["y"]},
                           {"x": child_rect["x"] + child_draw_w, "y": child_rect["y"] + child_draw_h},
                           {"x": car_rect["x"], "y": car_rect["y"]},
                           {"x": car_rect["x"] + car_w, "y": car_rect["y"] + car_h}):
-                if child_pet_dog:
-                    game_win = True
-                    dpg.configure_item("status_text", text="YOU WIN: GOOD PARENT")
-                else:
-                    game_over = True
-                    dpg.configure_item("status_text", text="YOU LOST: CHILD CRIED - BAD PARENT")
+            if child_pet_dog:
+                game_win = True
+                dpg.configure_item("status_text", text="YOU WIN: GOOD PARENT", color=comp151Colors.PINK)
+            else:
+                game_over = True
+                dpg.configure_item("status_text", text="YOU LOST: CHILD CRIED - BAD PARENT")
     dpg.render_dearpygui_frame()
 
 dpg.start_dearpygui()
