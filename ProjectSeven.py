@@ -16,7 +16,7 @@ child_pet_dog = False
 game_over = False
 game_win = False
 #speeds
-truck_speed=3
+truck_speed=2
 dog_speed=2
 bear_speed=2
 dog_direction = 1
@@ -32,7 +32,7 @@ car_w, car_h, channels, car_raw = dpg.load_image("SampleImages/car2.png")
 CHILD_SCALE = 0.22
 child_draw_w = int(child_w * CHILD_SCALE)
 child_draw_h = int(child_h * CHILD_SCALE)
-DOG_SCALE = 0.3
+DOG_SCALE = 2
 dog_draw_w = int(dog_w * DOG_SCALE)
 dog_draw_h = int(dog_h * DOG_SCALE)
 #functions
@@ -207,15 +207,14 @@ while dpg.is_dearpygui_running():
         for d in dogs:
             d["x"] += dog_speed * dog_direction
         #reverse if hits edge of grass
-        if d["x"] < 0 or d["x"] + dog_draw_w > WINDOW_W:
+        if dogs[0]["x"] < 0 or dogs[0]["x"] + dog_draw_w > WINDOW_W:
             dog_direction *= -1
              #move both dogs together
             for d2 in dogs:
                 d2["x"] += dog_speed * dog_direction
-            if do_overlap(child_top_left, child_bottom_right, d, dog_bottom_right):
-                child_pet_dog = True
-        dpg.configure_item("dog_update", pmin=(dogs[0]["x"], dogs[0]["y"]), pmax=(dogs[0]["x"] + dog_w, dogs[0]["y"] + dog_h))
-        dpg.configure_item("dog2_update", pmin=(dogs[1]["x"], dogs[1]["x"]), pmax=(dogs[1]["x"]+dog_w, dogs[1]["x"]+dog_h))
+
+        dpg.configure_item("dog_update", pmin=(dogs[0]["x"], dogs[0]["y"]), pmax=(dogs[0]["x"] + dog_draw_w, dogs[0]["y"] + dog_draw_h))
+        dpg.configure_item("dog2_update", pmin=(dogs[1]["x"], dogs[1]["y"]), pmax=(dogs[1]["x"]+dog_draw_w, dogs[1]["y"]+dog_draw_h))
         #move bear
         bear["x"] += bear_speed * bear_direction
         if bear["x"] < 0 or bear["x"] + bear_w > WINDOW_W:
@@ -237,7 +236,7 @@ while dpg.is_dearpygui_running():
                           {"x": truck_rect["x"] + truck_rect["w"], "y": truck_rect["y"] + truck_rect["h"]}):
             game_over = True
         dpg.configure_item("status_text", text="YOU LOST: CHILD HIT BY TRUCK - BAD PARENT")
-        break
+
         for d in dogs:
             dog_rect = {"x": d["x"], "y": d["y"], "w": dog_w, "h": dog_h}
             if do_overlap({"x": child_rect["x"], "y": child_rect["y"]},
