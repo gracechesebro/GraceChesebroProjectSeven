@@ -169,9 +169,9 @@ with dpg.window(label="Project Seven Game Window", width=800, height=800):
                        tag=f"bottom_truck{count}")
         count += 1
     #dogs
-    dpg.draw_image("dog_texture", (150, 310), (180+dog_w, 325+dog_h),
+    dpg.draw_image("dog_texture", (dogs[0]["x"], dogs[0]["y"]), (dogs[0]["x"] + dog_draw_w, dogs[0]["y"] + dog_draw_h),
                    tag="dog_update")
-    dpg.draw_image("dog_texture", (330, 310), (360+dog_w, 325+dog_h),
+    dpg.draw_image("dog_texture", (dogs[1]["x"], dogs[1]["y"]), (dogs[1]["x"]+dog_draw_w, dogs[1]["y"]+dog_draw_h),
                    tag="dog2_update")
     #bear
     dpg.draw_image("bear_texture", (415, 350), (415+bear_w, 350+bear_h),
